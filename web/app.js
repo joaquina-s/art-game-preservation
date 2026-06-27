@@ -377,6 +377,55 @@ function buildEffects() {
   document.querySelectorAll('.amp-rule').forEach((a) => {
     a.textContent = (a.dataset.amp || '&').repeat(300);
   });
+  // echo-stack buttons — layers fan out one by one on hover (staggered delay)
+  document.querySelectorAll('.echo-btn').forEach((b) => {
+    const word = b.dataset.text || b.textContent.trim() || 'echo';
+    const n = parseInt(b.dataset.echoBtn || '12', 10);
+    b.textContent = '';
+    for (let i = n; i >= 1; i--) {
+      const s = document.createElement('span');
+      s.className = 'ebl';
+      s.textContent = word;
+      s.style.setProperty('--x', `${(i * 0.16).toFixed(2)}em`);
+      s.style.setProperty('--y', `${(i * 0.15).toFixed(2)}em`);
+      s.style.setProperty('--o', Math.max(0.05, 0.5 - i / (n * 2)).toFixed(2));
+      s.style.transitionDelay = `${i * 40}ms`;
+      if (i % 3 === 0) s.style.color = 'var(--red)';
+      b.appendChild(s);
+    }
+    const f = document.createElement('span');
+    f.className = 'front';
+    f.textContent = word;
+    b.appendChild(f);
+  });
+  // wavy — each letter bobs with a staggered delay
+  document.querySelectorAll('.wavy').forEach((w) => {
+    const t = w.dataset.wavy || w.textContent || '';
+    w.textContent = '';
+    [...t].forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.textContent = ch === ' ' ? ' ' : ch;
+      s.style.animationDelay = `${(i * 0.06).toFixed(2)}s`;
+      w.appendChild(s);
+    });
+  });
+  // vertical ticker — duplicated list for a seamless loop
+  document.querySelectorAll('[data-ticker]').forEach((t) => {
+    const items = ['the last server is dying', 'flash † 2021', 'geocities † 2009', '404 not found', 'wss:// closed', 'keep it beating', 'dead.link/'];
+    const html = items.map((x) => `<div>${esc(x)} <span class="hl">&amp;&amp;</span></div>`).join('');
+    t.innerHTML = html + html;
+  });
+  // ascii / dither texture
+  document.querySelectorAll('[data-ascii]').forEach((a) => {
+    const chars = ' .:-=+*#%@░▒▓█';
+    let rows = '';
+    for (let r = 0; r < 13; r++) {
+      let line = '';
+      for (let c = 0; c < 88; c++) line += chars[(Math.random() * chars.length) | 0];
+      rows += line + '\n';
+    }
+    a.textContent = rows;
+  });
 }
 
 function genHex(n) {
