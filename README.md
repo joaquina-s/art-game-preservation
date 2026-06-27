@@ -3,6 +3,9 @@
 **Una herramienta de preservación de _art games_.** Mantiene las obras web vivas,
 autocontenidas y **latiendo** — en vez de congelar un cadáver en una caja.
 
+🌊 **Demo en vivo:** <https://joaquina-s.github.io/art-game-preservation/>
+_(funciona en modo demo, sin instalar nada; para preservar de verdad, corré el motor local — ver abajo)_
+
 > No preservamos archivos. Preservamos memoria jugable.
 
 revenant agarra un art game que vive en una URL, lo captura con todas sus
