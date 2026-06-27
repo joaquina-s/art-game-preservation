@@ -5,3 +5,6 @@ editions/
 .env
 .DS_Store
 Thumbs.db
+
+# pitch document — kept local, not published
+revenant-brief.pdf
