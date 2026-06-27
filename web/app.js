@@ -22,6 +22,7 @@ let LIVE = false;
 async function boot() {
   renderContractQuestions();
   renderArchive();
+  try { buildEffects(); } catch (e) { console.warn('effects skipped:', e); }
   $('#preserve-form').addEventListener('submit', onSubmit);
   $('#another-btn').addEventListener('click', resetToForm);
   $('#download-passport').addEventListener('click', downloadPassport);
@@ -339,6 +340,55 @@ async function sha256Hex(str) {
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// ── corecore effects: generate the repetitive / textural content ───────────
+function buildEffects() {
+  // marquees — duplicate the unit so translateX(-50%) loops seamlessly
+  document.querySelectorAll('.marquee-track').forEach((t) => {
+    const msg = (t.dataset.marquee || t.textContent || '').trim();
+    const unit = `${esc(msg)} <span class="amp">&amp;&amp;&amp;</span> `;
+    const half = unit.repeat(6);
+    t.innerHTML = half + half;
+  });
+  // echo / stack — copies rising behind a front layer, every 3rd in red
+  document.querySelectorAll('.echo').forEach((e) => {
+    const word = e.dataset.text || e.textContent.trim() || 'echo';
+    const n = parseInt(e.dataset.echo || '10', 10);
+    e.textContent = '';
+    for (let i = n; i >= 1; i--) {
+      const s = document.createElement('span');
+      s.className = 'layer';
+      s.textContent = word;
+      s.style.transform = `translate(${(i * 0.05).toFixed(2)}em, ${(i * 0.09).toFixed(2)}em)`;
+      s.style.opacity = Math.max(0.05, 0.5 - i / (n * 2.2)).toFixed(2);
+      if (i % 3 === 0) s.style.color = 'var(--red)';
+      e.appendChild(s);
+    }
+    const front = document.createElement('span');
+    front.textContent = word;
+    e.appendChild(front);
+  });
+  // hex / data textures
+  document.querySelectorAll('[data-hex]').forEach((h) => {
+    h.innerHTML = genHex(240);
+  });
+  // ampersand ornament rules
+  document.querySelectorAll('.amp-rule').forEach((a) => {
+    a.textContent = (a.dataset.amp || '&').repeat(300);
+  });
+}
+
+function genHex(n) {
+  const frag = ['https://', 'revenant.dead/', '404/', 'GET ', 'wss://', 'sha256:', '0xDEAD', 'cdn.cache/', '/editions/', 'beat=', 'null ', 'undefined ', '%E2%98%A0', '</body>', 'dead.link/'];
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    const f = frag[(Math.random() * frag.length) | 0];
+    const h = Math.random().toString(16).slice(2, 10);
+    const chunk = `${f}${h} `;
+    out += Math.random() < 0.12 ? `<span class="hl">${chunk}</span>` : chunk;
+  }
+  return out;
 }
 
 boot();
