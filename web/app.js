@@ -415,6 +415,12 @@ function buildEffects() {
     const html = items.map((x) => `<div>${esc(x)} <span class="hl">&amp;&amp;</span></div>`).join('');
     t.innerHTML = html + html;
   });
+  // ascii frame edges (top carries a title, bottom is plain)
+  document.querySelectorAll('[data-frame]').forEach((f) => {
+    const title = f.dataset.frame;
+    const dash = '─'.repeat(90);
+    f.textContent = title ? `┌─ ${title} ${dash}` : `└${dash}`;
+  });
   // ascii / dither texture
   document.querySelectorAll('[data-ascii]').forEach((a) => {
     const chars = ' .:-=+*#%@░▒▓█';
