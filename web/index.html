@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>revenant — preservación de art games</title>
+    <meta
+      name="description"
+      content="Una herramienta para preservar art games: mantiene las obras vivas, autocontenidas y latiendo."
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%234ff0d0' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%234ff0d0'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <div class="caustics" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <header class="masthead">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">revenant</span>
+      </div>
+      <div class="mode" id="mode-pill" title="Estado del motor">
+        <span class="mode-dot"></span><span id="mode-text">conectando…</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- ░░ INTRO ░░ -->
+      <section class="intro">
+        <h1>Un archivo que respira.</h1>
+        <p class="lede">
+          Las herramientas de preservación congelan un cadáver en una caja. Acá la obra
+          sigue <em>viva</em>: la traés al archivo, la soltás de los servidores que se mueren,
+          y queda <em>latiendo</em>. No preservamos archivos — preservamos memoria jugable.
+        </p>
+      </section>
+
+      <!-- ░░ DESCENT / FORM ░░ -->
+      <section class="descent-bay" id="bay">
+        <form id="preserve-form" class="ritual">
+          <label class="field">
+            <span class="field-label">La obra</span>
+            <input
+              type="url"
+              id="url"
+              name="url"
+              placeholder="https://tu-art-game.example"
+              autocomplete="off"
+              required
+            />
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span class="field-label">Título</span>
+              <input type="text" id="title" name="title" placeholder="One More Sim" autocomplete="off" />
+            </label>
+            <label class="field">
+              <span class="field-label">Artista</span>
+              <input type="text" id="artist" name="artist" placeholder="Joaquina Salgado" autocomplete="off" />
+            </label>
+          </div>
+          <button type="submit" class="descend-btn" id="descend-btn">
+            <span>Traer al archivo</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M12 3v14m0 0l-5-5m5 5l5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <p class="form-hint" id="form-hint"></p>
+        </form>
+
+        <!-- descent animation -->
+        <div class="descent" id="descent" hidden>
+          <div class="depth-line"><span class="diver" id="diver"></span></div>
+          <ol class="stages" id="stages">
+            <li data-phase="capture"><span class="stage-dot"></span><span class="stage-text">Bajando hasta la obra</span></li>
+            <li data-phase="release"><span class="stage-dot"></span><span class="stage-text">Soltándola de los servidores muertos</span></li>
+            <li data-phase="read"><span class="stage-dot"></span><span class="stage-text">Leyendo su cuerpo</span></li>
+            <li data-phase="seal"><span class="stage-dot"></span><span class="stage-text">Sellando el latido</span></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ░░ RESULT ░░ -->
+      <section class="result" id="result" hidden>
+        <!-- heartbeat hero -->
+        <div class="heartbeat-hero">
+          <div class="heart" id="heart">
+            <span class="heart-core"></span>
+            <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+          </div>
+          <div class="heart-meta">
+            <p class="eyebrow">edición viva</p>
+            <h2 id="res-title">—</h2>
+            <p class="res-sub" id="res-artist">—</p>
+            <p class="heart-hash">
+              latido <code id="res-hash">—</code> · <span id="res-bpm">—</span> bpm
+            </p>
+            <p class="risk-badge" id="res-risk">—</p>
+          </div>
+        </div>
+
+        <div class="cards">
+          <!-- passport -->
+          <article class="card passport-card">
+            <h3>Pasaporte de preservación</h3>
+            <dl class="kv">
+              <dt>Motor / runtime</dt><dd id="pp-engine">—</dd>
+              <dt>Librerías</dt><dd id="pp-libs">—</dd>
+              <dt>APIs del navegador</dt><dd id="pp-apis">—</dd>
+              <dt>Recursos</dt><dd id="pp-res">—</dd>
+            </dl>
+            <p class="narrative" id="pp-narrative">—</p>
+          </article>
+
+          <!-- dependencies -->
+          <article class="card deps-card">
+            <h3>Dependencias <span class="muted">— qué vive y qué se pudre</span></h3>
+            <ul class="deps" id="deps-list"></ul>
+          </article>
+        </div>
+
+        <!-- intention contract -->
+        <article class="card contract-card">
+          <h3>Contrato de intención <span class="muted">— qué es sagrado, qué puede cambiar</span></h3>
+          <p class="contract-intro">
+            Antes de que la obra se hunda en el tiempo, el artista entra una última vez y
+            firma qué tiene que sobrevivir. Toda migración futura — humana o IA — obedece esto.
+          </p>
+          <div class="contract-questions" id="contract-questions"></div>
+        </article>
+
+        <div class="result-actions">
+          <a class="ghost-btn" id="play-link" href="#" target="_blank" rel="noopener" hidden>Abrir la obra preservada ↗</a>
+          <button class="ghost-btn" id="download-passport">Descargar pasaporte (.json)</button>
+          <button class="ghost-btn" id="another-btn">Preservar otra</button>
+        </div>
+      </section>
+
+      <!-- ░░ ARCHIVE ░░ -->
+      <section class="archive" id="archive-section">
+        <div class="archive-head">
+          <h2>El archivo</h2>
+          <p class="muted" id="archive-count">vacío todavía</p>
+        </div>
+        <div class="reef" id="reef"></div>
+      </section>
+    </main>
+
+    <footer class="colophon">
+      <p>
+        <strong>revenant</strong> mantiene los art games vivos, autocontenidos y latiendo.
+        Lo que ves y tocás funciona de verdad. Lo que sigue siendo visión, no feature,
+        es el agente que juega la obra y re-performa lo que murió.
+      </p>
+      <p class="muted">
+        Nostalgia reflexiva (Boym) · hauntología (Fisher) · un latido por obra.
+      </p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

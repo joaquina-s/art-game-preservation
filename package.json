@@ -1,0 +1,27 @@
+{
+  "name": "revenant",
+  "version": "0.1.0",
+  "description": "A preservation tool for art games. Keeps web-based artworks alive, self-contained, and beating.",
+  "type": "module",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "preservation",
+    "art-games",
+    "digital-art",
+    "net-art",
+    "conservation",
+    "emulation"
+  ],
+  "author": "Joaquina Salgado",
+  "license": "MIT",
+  "optionalDependencies": {
+    "playwright": "^1.45.0"
+  }
+}
