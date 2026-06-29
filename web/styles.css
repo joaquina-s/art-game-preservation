@@ -491,6 +491,69 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 9000; pointer-ev
   background: radial-gradient(40% 50% at 30% 40%, rgba(26,26,255,.16), transparent 70%), radial-gradient(40% 50% at 70% 60%, rgba(229,37,27,.12), transparent 70%); filter: blur(18px); }
 .sh--cloud > * { position: relative; z-index: 1; }
 
+/* ═══════════ v5 — living edition: relic + revival ═══════════ */
+.edition-head { padding: 6px 0 24px; }
+.edition-head .eyebrow { color: var(--red); }
+.edition-head h2 { font-weight: 900; font-size: clamp(1.9rem,5vw,3rem); margin: 4px 0 0; letter-spacing: -0.03em; line-height: .95; text-transform: lowercase; }
+.edition-head .res-sub { margin: 6px 0 12px; color: var(--ink-2); font-family: var(--mono); font-size: .85rem; }
+.edition-line { font-family: var(--mono); font-size: .82rem; color: var(--ink); margin: 0; }
+
+.edition { display: grid; grid-template-columns: 1fr 1fr; margin: 0 calc(var(--pad)*-1); border-top: 2px solid var(--ink); }
+.relic, .revival { padding: 26px var(--pad) 30px; border-bottom: 2px solid var(--ink); }
+.relic { border-right: 2px solid var(--ink); background: linear-gradient(165deg, #ffffff, #eef0f3); }
+.panel-head { margin-bottom: 18px; }
+.panel-tag { font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.panel-sub { font-family: var(--serif); font-style: italic; color: var(--ink-3); margin: 5px 0 0; font-size: .94rem; }
+.relic .panel-tag { color: var(--ink); }
+.relic .narrative { font-size: .92rem; }
+.relic .deps { margin-top: 16px; }
+.seal-line { font-family: var(--mono); font-size: .8rem; color: var(--ink-2); margin: 18px 0 0; border-top: 2px solid var(--ink); padding-top: 14px; }
+.seal-line code { background: var(--ink); color: #fff; padding: 2px 8px; }
+
+.frontier-tag { font-family: var(--mono); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; border: 1px dashed currentColor; padding: 1px 6px; font-weight: 700; opacity: .85; }
+
+/* revival — warm, breathing, ghosted/dashed (the vision the funding builds) */
+.revival { position: relative; background: linear-gradient(160deg, rgba(229,37,27,.06), rgba(26,26,255,.05)); }
+.revival::after { content: ""; position: absolute; inset: 9px; border: 1.5px dashed var(--ink); opacity: .35; pointer-events: none; }
+.revival .panel-tag { color: var(--red); }
+.revival .revival-copy, .revival .provenance, .revival .bounded, .revival .panel-sub { opacity: .82; }
+.revival-stage { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-bottom: 16px; }
+.revival .heart { width: 88px; height: 88px; }
+.revival .heart-core { inset: 33px; }
+.heart-hash { font-family: var(--mono); font-size: .8rem; color: var(--ink-2); margin: 0; }
+.revival .heart-hash code { background: var(--red); color: #fff; padding: 2px 8px; }
+.revival-copy { font-size: .92rem; line-height: 1.6; color: var(--ink-2); margin: 0 0 16px; max-width: 52ch; }
+.provenance { list-style: none; margin: 0 0 14px; padding: 0; display: flex; gap: 22px; font-family: var(--mono); font-size: .74rem; color: var(--ink); flex-wrap: wrap; }
+.provenance li { display: flex; align-items: center; gap: 8px; }
+.provenance .prov-dot { width: 10px; height: 10px; flex: none; }
+.provenance .orig .prov-dot { background: var(--ink); }
+.provenance .ai .prov-dot { background: transparent; border: 1.5px dashed var(--red); border-radius: 50%; }
+.bounded { font-family: var(--mono); font-size: .74rem; color: var(--ink-3); margin: 0; }
+
+.contract-card h3 { margin: 0 0 14px; font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); font-weight: 700; display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+
+/* descent — the fifth move (Revive) as the unreached frontier */
+.stages li.frontier { color: var(--ink-3); opacity: .7; }
+.stages li.frontier .stage-dot { background: transparent; border: 1.5px dashed var(--ink); }
+.stages li.frontier.reaching { color: var(--ink); opacity: .92; }
+.stages li.frontier.reaching .stage-dot { border-color: var(--red); animation: beat var(--beat,1.25s) ease-in-out infinite; }
+.frontier-note { grid-column: 2; margin: 16px 0 0; font-family: var(--mono); font-size: .78rem; color: var(--ink-3); max-width: 62ch; line-height: 1.55; }
+
+/* terminal form fields (f_03) with a soft halo on focus */
+.ritual .fld--term { transition: box-shadow .25s; }
+.ritual .fld--term:focus-within { box-shadow: 0 0 0 1px var(--blue), 0 14px 30px -12px rgba(26,26,255,.6); }
+.fld input:focus { box-shadow: none; outline: none; }
+
+/* keyboard focus visibility (quality floor) */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.ghost-btn:focus-visible, .link-stretch:focus-visible { outline-offset: 4px; }
+
+@media (max-width: 760px) {
+  .edition { grid-template-columns: 1fr; }
+  .relic { border-right: none; }
+  .frontier-note { grid-column: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }

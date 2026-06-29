@@ -34,11 +34,11 @@
     <main>
       <!-- ░░ INTRO ░░ -->
       <section class="intro">
-        <h1>un archivo que <span class="red">respira</span></h1>
+        <h1>que la obra <span class="red">siga respirando</span></h1>
         <p class="lede">
-          Las herramientas de preservación congelan un cadáver en una caja. Acá la obra
-          sigue <em>viva</em>: la traés al archivo, la soltás de los servidores que se mueren,
-          y queda <em>latiendo</em>. No preservamos archivos — preservamos memoria jugable.
+          Los art games mueren con sus servidores. revenant captura la obra y trae su mundo
+          de vuelta como una <em>edición viva</em> que podés volver a habitar. La IA acá es
+          memoria: recuerda la obra de regreso a la vida.
         </p>
       </section>
 
@@ -47,23 +47,19 @@
         <form id="preserve-form" class="ritual">
           <label class="field">
             <span class="field-label">La obra</span>
-            <input
-              type="url"
-              id="url"
-              name="url"
-              placeholder="https://tu-art-game.example"
-              autocomplete="off"
-              required
-            />
+            <div class="fld fld--term">
+              <span class="p" aria-hidden="true">&gt;</span>
+              <input type="url" id="url" name="url" placeholder="https://tu-art-game.example" autocomplete="off" required />
+            </div>
           </label>
           <div class="field-row">
             <label class="field">
               <span class="field-label">Título</span>
-              <input type="text" id="title" name="title" placeholder="One More Sim" autocomplete="off" />
+              <div class="fld fld--term"><span class="p" aria-hidden="true">&gt;</span><input type="text" id="title" name="title" placeholder="One More Sim" autocomplete="off" /></div>
             </label>
             <label class="field">
               <span class="field-label">Artista</span>
-              <input type="text" id="artist" name="artist" placeholder="Joaquina Salgado" autocomplete="off" />
+              <div class="fld fld--term"><span class="p" aria-hidden="true">&gt;</span><input type="text" id="artist" name="artist" placeholder="Joaquina Salgado" autocomplete="off" /></div>
             </label>
           </div>
           <div class="form-links">
@@ -80,34 +76,32 @@
             <li data-phase="capture"><span class="stage-dot"></span><span class="stage-text">Bajando hasta la obra</span></li>
             <li data-phase="release"><span class="stage-dot"></span><span class="stage-text">Soltándola de los servidores muertos</span></li>
             <li data-phase="read"><span class="stage-dot"></span><span class="stage-text">Leyendo su cuerpo</span></li>
-            <li data-phase="seal"><span class="stage-dot"></span><span class="stage-text">Sellando el latido</span></li>
+            <li data-phase="seal"><span class="stage-dot"></span><span class="stage-text">Sellando el latido en la reliquia</span></li>
+            <li data-phase="revive" class="frontier"><span class="stage-dot"></span><span class="stage-text">Revivir su mundo <span class="frontier-tag">la frontera</span></span></li>
           </ol>
+          <p class="frontier-note">
+            Las primeras cuatro corren de verdad y producen la reliquia y el contrato que define
+            los límites del revival. Revivir su mundo es lo que este fondo construye.
+          </p>
         </div>
       </section>
 
-      <!-- ░░ RESULT ░░ -->
+      <!-- ░░ RESULT — living edition = relic + revival ░░ -->
       <section class="result" id="result" hidden>
-        <!-- heartbeat hero -->
-        <div class="heartbeat-hero">
-          <div class="heart" id="heart">
-            <span class="heart-core"></span>
-            <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
-          </div>
-          <div class="heart-meta">
-            <p class="eyebrow">edición viva</p>
-            <h2 id="res-title">—</h2>
-            <p class="res-sub" id="res-artist">—</p>
-            <p class="heart-hash">
-              latido <code id="res-hash">—</code> · <span id="res-bpm">—</span> bpm
-            </p>
-            <p class="risk-badge" id="res-risk">—</p>
-          </div>
-        </div>
+        <header class="edition-head">
+          <p class="eyebrow">edición viva · living edition</p>
+          <h2 id="res-title">—</h2>
+          <p class="res-sub" id="res-artist">—</p>
+          <p class="edition-line">Dos copias de la misma obra: la reliquia y el revival.</p>
+        </header>
 
-        <div class="cards">
-          <!-- passport -->
-          <article class="card passport-card">
-            <h3>Pasaporte de preservación</h3>
+        <div class="edition">
+          <!-- THE RELIC — cool, still, archival -->
+          <article class="relic" aria-label="la reliquia">
+            <header class="panel-head">
+              <p class="panel-tag">la reliquia · the relic</p>
+              <p class="panel-sub">el original, congelado, la verdad</p>
+            </header>
             <dl class="kv">
               <dt>Motor / runtime</dt><dd id="pp-engine">—</dd>
               <dt>Librerías</dt><dd id="pp-libs">—</dd>
@@ -115,27 +109,49 @@
               <dt>Recursos</dt><dd id="pp-res">—</dd>
             </dl>
             <p class="narrative" id="pp-narrative">—</p>
+            <ul class="deps" id="deps-list"></ul>
+            <p class="seal-line">sellada <code id="res-hash">—</code> · estado <span class="risk-badge" id="res-risk">—</span></p>
           </article>
 
-          <!-- dependencies -->
-          <article class="card deps-card">
-            <h3>Dependencias <span class="muted">— qué vive y qué se pudre</span></h3>
-            <ul class="deps" id="deps-list"></ul>
+          <!-- THE REVIVAL — warm, breathing, the frontier (ghosted/dashed) -->
+          <article class="revival" aria-label="el revival">
+            <header class="panel-head">
+              <p class="panel-tag">el revival · recordado por IA <span class="frontier-tag">la frontera</span></p>
+              <p class="panel-sub">el mundo recordado de vuelta a la vida</p>
+            </header>
+            <div class="revival-stage">
+              <div class="heart" id="heart">
+                <span class="heart-core"></span>
+                <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+              </div>
+              <p class="heart-hash">latido <code id="res-hash-live">—</code> · <span id="res-bpm">—</span> bpm</p>
+            </div>
+            <p class="revival-copy">
+              La IA vuelve a performar lo que murió: los jugadores ausentes, los datos en vivo
+              que ya no existen, el contexto perdido. El latido vive acá, porque el revival es
+              la parte que respira.
+            </p>
+            <ul class="provenance">
+              <li class="orig"><span class="prov-dot"></span>original capturado</li>
+              <li class="ai"><span class="prov-dot"></span>recordado por IA</li>
+            </ul>
+            <p class="bounded">revival acotado por el contrato del artista ↓</p>
           </article>
         </div>
 
-        <!-- intention contract -->
-        <article class="card contract-card">
-          <h3>Contrato de intención <span class="muted">— qué es sagrado, qué puede cambiar</span></h3>
+        <!-- the rules of the revival (formerly the intent contract) -->
+        <article class="contract-card">
+          <h3>las reglas del revival <span class="muted">qué puede traer de vuelta la IA</span></h3>
           <p class="contract-intro">
-            Antes de que la obra se hunda en el tiempo, el artista entra una última vez y
-            firma qué tiene que sobrevivir. Toda migración futura — humana o IA — obedece esto.
+            El artista define los límites antes de que la obra se hunda en el tiempo: qué puede
+            recordar la IA, qué es sagrado, hasta dónde puede reconstruir. El revival obedece
+            estas reglas.
           </p>
           <div class="contract-questions" id="contract-questions"></div>
         </article>
 
         <div class="result-actions">
-          <a class="ghost-btn" id="play-link" href="#" target="_blank" rel="noopener" hidden>Abrir la obra preservada ↗</a>
+          <a class="ghost-btn" id="play-link" href="#" target="_blank" rel="noopener" hidden>Abrir la reliquia ↗</a>
           <button class="ghost-btn" id="download-passport">Descargar pasaporte (.json)</button>
           <button class="ghost-btn" id="another-btn">Preservar otra</button>
         </div>

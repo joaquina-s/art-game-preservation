@@ -37,11 +37,11 @@ async function probeBackend() {
     const h = await r.json();
     LIVE = true;
     pill.classList.add('live');
-    $('#mode-text').textContent = h.ai ? 'motor + IA' : 'motor activo';
+    $('#mode-text').textContent = h.ai ? 'motor local + IA' : 'motor local activo';
   } catch {
     LIVE = false;
     pill.classList.add('demo');
-    $('#mode-text').textContent = 'modo demo';
+    $('#mode-text').textContent = 'preview · el pipeline real corre local';
   }
 }
 
@@ -95,26 +95,31 @@ async function onSubmit(e) {
 const STAGES = ['capture', 'release', 'read', 'seal'];
 
 function resetStages() {
-  document.querySelectorAll('.stages li').forEach((li) => li.classList.remove('active', 'done'));
-  $('#diver').style.top = '0%';
+  document.querySelectorAll('.stages li').forEach((li) => li.classList.remove('active', 'done', 'reaching'));
+  $('#diver').style.top = '0px';
 }
 
+function diverTo(li) {
+  if (li) $('#diver').style.top = `${li.offsetTop + li.offsetHeight / 2 - 6}px`;
+}
+
+// Only the four working moves animate. The fifth (Revive) is the frontier
+// horizon: it never completes, it is what the funding builds.
 async function runDescent() {
-  const lis = [...document.querySelectorAll('.stages li')];
-  for (let i = 0; i < STAGES.length; i++) {
-    lis.forEach((li, j) => li.classList.toggle('done', j < i));
-    lis[i].classList.add('active');
-    $('#diver').style.top = `${(i / (STAGES.length - 1)) * 100}%`;
+  const working = [...document.querySelectorAll('.stages li:not(.frontier)')];
+  for (let i = 0; i < working.length; i++) {
+    working.forEach((li, j) => li.classList.toggle('done', j < i));
+    working[i].classList.add('active');
+    diverTo(working[i]);
     await wait(700 + Math.random() * 500);
   }
 }
 
 function markAllStagesDone() {
-  document.querySelectorAll('.stages li').forEach((li) => {
-    li.classList.remove('active');
-    li.classList.add('done');
-  });
-  $('#diver').style.top = '100%';
+  const working = [...document.querySelectorAll('.stages li:not(.frontier)')];
+  working.forEach((li) => { li.classList.remove('active'); li.classList.add('done'); });
+  diverTo(working[working.length - 1]); // rest at "seal", not at the frontier
+  document.querySelector('.stages li.frontier')?.classList.add('reaching');
 }
 
 // ── live preservation (backend) ────────────────────────────────────────────
@@ -140,8 +145,8 @@ async function preserveDemo({ url, title, artist }) {
   const engines = ['Three.js', 'Unity (WebGL)', 'p5.js', 'PixiJS'];
   const engine = engines[parseInt(hash.slice(4, 6), 16) % engines.length];
   const deps = [
-    { host: 'unpkg.com', ok: true, risk: 'medium', note: 'External — copiada local.' },
-    { host: 'cdnjs.cloudflare.com', ok: false, risk: 'high', note: 'Bloqueada (403) — ya inalcanzable.' },
+    { host: 'unpkg.com', ok: true, risk: 'medium', note: 'externa, copiada local' },
+    { host: 'cdnjs.cloudflare.com', ok: false, risk: 'high', note: 'bloqueada (403), ya inalcanzable' },
   ];
   const apis = [
     { name: 'WebGL', risk: 'low' },
@@ -167,7 +172,7 @@ async function preserveDemo({ url, title, artist }) {
           `${title || 'Esta obra'} corre sobre ${engine} en el navegador. Una de sus ` +
           `dependencias (cdnjs) ya está bloqueada: fue la primera en pudrirse. El resto se ` +
           `bajó local, así que la obra ya no depende de que esos servidores sigan vivos. ` +
-          `(Datos de ejemplo — corré el motor local para preservar de verdad.)`,
+          `(Datos de ejemplo. Corré el motor local para preservar de verdad.)`,
       },
       playableUrl: null,
     },
@@ -203,8 +208,11 @@ function normalize(res, isDemo) {
 function renderResult(r) {
   $('#result').hidden = false;
   $('#res-title').textContent = r.title;
-  $('#res-artist').textContent = r.artist + (r.isDemo ? ' · ejemplo' : '');
+  $('#res-artist').textContent = r.artist;
+  // the same root hash: sealed on the relic, beating on the revival
   $('#res-hash').textContent = r.heartbeat.short;
+  const liveHash = $('#res-hash-live');
+  if (liveHash) liveHash.textContent = r.heartbeat.short;
   $('#res-bpm').textContent = r.heartbeat.bpm;
 
   const risk = $('#res-risk');
@@ -360,7 +368,7 @@ function buildEffects() {
       const s = document.createElement('span');
       s.className = 'layer';
       s.textContent = word;
-      s.style.transform = `translate(${(i * 0.05).toFixed(2)}em, ${(i * 0.09).toFixed(2)}em)`;
+      s.style.transform = `translate(0, ${(i * 0.1).toFixed(2)}em)`; // vertical stack
       s.style.opacity = Math.max(0.05, 0.5 - i / (n * 2.2)).toFixed(2);
       if (i % 3 === 0) s.style.color = 'var(--red)';
       e.appendChild(s);
@@ -386,8 +394,8 @@ function buildEffects() {
       const s = document.createElement('span');
       s.className = 'ebl';
       s.textContent = word;
-      s.style.setProperty('--x', `${(i * 0.16).toFixed(2)}em`);
-      s.style.setProperty('--y', `${(i * 0.15).toFixed(2)}em`);
+      s.style.setProperty('--x', '0em'); // vertical stack
+      s.style.setProperty('--y', `${(i * 0.16).toFixed(2)}em`);
       s.style.setProperty('--o', Math.max(0.05, 0.5 - i / (n * 2)).toFixed(2));
       s.style.transitionDelay = `${i * 40}ms`;
       if (i % 3 === 0) s.style.color = 'var(--red)';
