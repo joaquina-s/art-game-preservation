@@ -1,89 +1,259 @@
-// revenant — interface logic.
-// Works in two modes:
-//   • live  — a backend is running (node server/server.js): real preservation.
-//   • demo  — no backend (e.g. GitHub Pages): the full experience with sample data.
+// revenant — interface preview (front-end only).
+// Nothing is preserved here. On "preserve", the interface runs a staged
+// sequence and reveals a pre-authored, illustrative edition for the chosen
+// input type. All output below is sample data.
 
 const $ = (sel) => document.querySelector(sel);
-const ARCHIVE_KEY = 'revenant.archive.v1';
+const ARCHIVE_KEY = 'revenant.archive.v2';
 
-const CONTRACT_QUESTIONS = [
-  { id: 'essence', label: 'La esencia', prompt: '¿Qué es esta obra, en una frase?' },
-  { id: 'feel', label: 'El feel', prompt: 'El control, el peso, la jank. ¿Qué se siente igual?' },
-  { id: 'tempo', label: 'El tempo', prompt: '¿El ritmo es sagrado? Framerate, latencia, velocidad.' },
-  { id: 'atmosphere', label: 'La atmósfera', prompt: 'Estética, sonido, luz, grano.' },
-  { id: 'sacred', label: 'Lo sagrado', prompt: '¿Qué NO se toca nunca?' },
-  { id: 'mutable', label: 'Lo que puede cambiar', prompt: '¿Qué es accesorio?' },
-  { id: 'ai_bounds', label: 'Límite de la IA', prompt: '¿Hasta dónde puede reconstruir la IA lo perdido?' },
+// ── pre-authored sample editions ────────────────────────────────────────────
+// One per input type. Web takes the "working" path (a self-contained copy that
+// runs); engine builds take the "diagnosis" path (read + risk report, with the
+// rebuilt environment marked as the frontier).
+const SAMPLES = {
+  web: {
+    type: 'web',
+    kind: 'web / webgl',
+    path: 'working',
+    title: 'One More Sim',
+    artist: 'Joaquina Salgado',
+    source: 'https://onemoresim.example',
+    runtime: 'Three.js r158 · WebGL2',
+    origState: 'runs offline · self-contained',
+    origSub: 'the self-contained copy — it runs with no servers',
+    built: [
+      ['Engine / runtime', 'Three.js r158 (WebGL2)'],
+      ['Libraries', 'Howler.js, Tween.js, Stats.js'],
+      ['Browser APIs', 'WebGL2, Web Audio, Gamepad, Pointer Lock'],
+      ['Assets', 'GLB models, KTX2 textures, OGG audio'],
+    ],
+    deps: [
+      { host: 'unpkg.com/three@0.158', status: 'localized', note: 'copied into the edition' },
+      { host: 'fonts.gstatic.com', status: 'localized', note: 'copied into the edition' },
+      { host: 'cdnjs.cloudflare.com/howler', status: 'lost', note: 'returns 403 — gone, flagged' },
+      { host: 'scores.onemoresim.live', status: 'lost', note: 'server offline — live leaderboard' },
+    ],
+    resources: { captured: 41, localized: 39, lost: 2 },
+    risk: {
+      level: 'fragile',
+      report:
+        'The copy runs offline. Two dependencies are already gone: the Howler CDN (403) ' +
+        'and the live leaderboard server. The first is localized from cache; the second has ' +
+        'no copy left and is marked for reconstruction.',
+    },
+    recollection: {
+      lead:
+        'The self-contained copy keeps running with no servers at all. The live leaderboard ' +
+        'it once talked to is gone; the AI reconstructs a stand-in from captured data so the ' +
+        'screen fills again, bounded by the score below.',
+      provenance: [
+        { part: 'world & core loop', origin: 'captured' },
+        { part: 'audio & assets', origin: 'captured' },
+        { part: 'live leaderboard', origin: 'reconstructed' },
+      ],
+    },
+    score: {
+      sacred: 'The exact feel of the jump and the fog. Framerate above 50.',
+      mutable: 'The leaderboard backend. The ad-hoc network code.',
+      rebuild: 'Reconstruct a plausible leaderboard from captured scores. Never invent new levels.',
+    },
+  },
+
+  unreal: {
+    type: 'unreal',
+    kind: 'unreal engine build',
+    path: 'diagnosis',
+    title: 'Drowned World',
+    artist: 'Joaquina Salgado',
+    source: 'DrownedWorld.uproject',
+    runtime: 'Unreal Engine 5.3.2',
+    origState: 'needs its original toolchain',
+    origSub: 'the build exactly as delivered',
+    built: [
+      ['Engine', 'Unreal Engine 5.3.2'],
+      ['Render features', 'Nanite, Lumen (SW + HW), Virtual Shadow Maps'],
+      ['Plugins', 'Niagara, MetaSounds, Water, Chaos Physics'],
+      ['Gameplay', 'Custom C++ module, Blueprint graphs'],
+    ],
+    deps: [
+      { host: 'Online Subsystem: Steam', status: 'risk', note: 'account + Steam runtime required' },
+      { host: 'Wwise (Audiokinetic)', status: 'risk', note: 'proprietary middleware, versioned' },
+      { host: 'NVIDIA DLSS plugin', status: 'risk', note: 'vendor + driver dependent' },
+      { host: 'Chaos / PhysX', status: 'localized', note: 'engine-bundled' },
+    ],
+    risk: {
+      level: 'critical',
+      report:
+        'Runs only on the UE 5.3 toolchain with a GPU that supports Shader Model 6. Lumen and ' +
+        'Nanite need hardware that will age out. The Steam Online Subsystem and DLSS are ' +
+        'vendor-locked and can be deprecated. Keeping the binary alone will not keep this running.',
+    },
+    recollection: {
+      lead:
+        'Rebuilding the environment this build needs — the UE 5.3 toolchain, the render ' +
+        'features, the vendor SDKs — so it launches on hardware that has not shipped yet. ' +
+        'Today revenant delivers the diagnosis; the reconstruction is what this accelerator builds.',
+      provenance: [
+        { part: 'build & assets', origin: 'captured' },
+        { part: 'engine toolchain', origin: 'reconstructed' },
+        { part: 'render features (Nanite / Lumen)', origin: 'reconstructed' },
+        { part: 'Steam / DLSS SDKs', origin: 'reconstructed' },
+      ],
+    },
+    score: {
+      sacred: 'The Lumen lighting mood. The underwater physics feel.',
+      mutable: 'The exact GPU vendor path. DLSS can be swapped for a generic upscaler.',
+      rebuild: 'Rebuild the runtime so it launches. Keep render output within a visible tolerance.',
+    },
+  },
+
+  unity: {
+    type: 'unity',
+    kind: 'unity build',
+    path: 'diagnosis',
+    title: 'Neon Tide',
+    artist: 'Joaquina Salgado',
+    source: 'NeonTide (Unity project)',
+    runtime: 'Unity 2022.3.18 LTS',
+    origState: 'needs its original toolchain',
+    origSub: 'the build exactly as delivered',
+    built: [
+      ['Engine', 'Unity 2022.3.18 LTS'],
+      ['Render features', 'Universal Render Pipeline (URP), Shader Graph, post-processing'],
+      ['Packages', 'Cinemachine, Input System, TextMeshPro, Addressables'],
+      ['Scripting', 'C# · IL2CPP backend'],
+    ],
+    deps: [
+      { host: 'Addressables remote catalog', status: 'risk', note: 'content served from a live CDN' },
+      { host: 'Unity Analytics / Ads SDK', status: 'risk', note: 'phones home to Unity endpoints' },
+      { host: 'FMOD Studio', status: 'risk', note: 'proprietary audio middleware' },
+      { host: 'Steamworks.NET', status: 'risk', note: 'account + Steam runtime' },
+    ],
+    risk: {
+      level: 'critical',
+      report:
+        'The IL2CPP build is tied to its platform toolchain and target. Addressables pulls ' +
+        'content from a remote catalog that will go dark; the Analytics / Ads SDK calls ' +
+        'endpoints that can be retired. URP and Shader Graph are versioned to this editor. ' +
+        'The binary alone will not survive its services.',
+    },
+    recollection: {
+      lead:
+        'Rebuilding what the project depends on outside itself — the Addressables catalog, the ' +
+        'retired SDK endpoints, the exact editor and render pipeline — so it runs without the ' +
+        'services it was born into. Today revenant delivers the diagnosis; the reconstruction ' +
+        'is what this accelerator builds.',
+      provenance: [
+        { part: 'scenes & assets', origin: 'captured' },
+        { part: 'Addressables content', origin: 'reconstructed' },
+        { part: 'analytics / ads endpoints', origin: 'reconstructed' },
+        { part: 'editor + URP toolchain', origin: 'reconstructed' },
+      ],
+    },
+    score: {
+      sacred: 'The neon palette and the tide timing.',
+      mutable: 'The ad / analytics layer — remove it. Remote content can be baked in.',
+      rebuild: 'Bake Addressables content locally. Stub the dead SDKs. Do not alter the scenes.',
+    },
+  },
+};
+
+const SCORE_FIELDS = [
+  { id: 'sacred', label: 'sacred', prompt: 'What must never change?' },
+  { id: 'mutable', label: 'may change', prompt: 'What may change to keep it alive?' },
+  { id: 'rebuild', label: 'rebuild limit', prompt: 'How far may the recollection rebuild what is lost?' },
 ];
 
-let LIVE = false;
+let currentType = 'web';
+let lastResult = null;
 
 // ── boot ──────────────────────────────────────────────────────────────────
-async function boot() {
-  renderContractQuestions();
-  renderArchive();
+function boot() {
   try { buildEffects(); } catch (e) { console.warn('effects skipped:', e); }
+  document.querySelectorAll('.type').forEach((b) =>
+    b.addEventListener('click', () => selectType(b.dataset.type)));
+  $('#buildfile').addEventListener('change', onBuildFile);
   $('#preserve-form').addEventListener('submit', onSubmit);
   $('#another-btn').addEventListener('click', resetToForm);
   $('#download-passport').addEventListener('click', downloadPassport);
-  await probeBackend();
+  selectType('web');
+  renderArchive();
+  maybeDeepLink();
 }
 
-async function probeBackend() {
-  const pill = $('#mode-pill');
-  try {
-    const r = await fetch('/api/health', { cache: 'no-store' });
-    if (!r.ok) throw new Error();
-    const h = await r.json();
-    LIVE = true;
-    pill.classList.add('live');
-    $('#mode-text').textContent = h.ai ? 'motor local + IA' : 'motor local activo';
-  } catch {
-    LIVE = false;
-    pill.classList.add('demo');
-    $('#mode-text').textContent = 'preview · el pipeline real corre local';
-  }
+// A shareable link straight to a sample edition, e.g. ...#sample=unreal.
+// Renders the pre-authored edition immediately, skipping the animation.
+async function maybeDeepLink() {
+  const m = /[#?&]sample=(web|unreal|unity)/.exec(location.hash + location.search);
+  if (!m) return;
+  const s = SAMPLES[m[1]];
+  selectType(s.type);
+  const short = (await sha256Hex(`${s.type}|${s.title}|${s.source}`)).slice(0, 10);
+  const result = { ...s, signature: short };
+  lastResult = result;
+  renderResult(result);
+  saveToArchive(result);
+  renderArchive();
 }
 
-// ── submit / descent ─────────────────────────────────────────────────────
-let lastResult = null;
+// ── type selection ──────────────────────────────────────────────────────────
+function selectType(type) {
+  currentType = type in SAMPLES ? type : 'web';
+  const s = SAMPLES[currentType];
+  document.querySelectorAll('.type').forEach((b) =>
+    b.setAttribute('aria-pressed', String(b.dataset.type === currentType)));
 
+  const isWeb = currentType === 'web';
+  $('#field-url').hidden = !isWeb;
+  $('#field-drop').hidden = isWeb;
+
+  // Prefill the form with the sample so it reads as authored, still editable.
+  $('#title').placeholder = s.title;
+  $('#artist').placeholder = s.artist;
+  $('#url').placeholder = isWeb ? 'https://your-art-game.example' : '';
+  $('#drop-sample').textContent = s.source;
+  $('#drop-title').textContent = 'drop a build folder';
+  $('#buildfile').value = '';
+  $('#form-hint').textContent = '';
+}
+
+// A chosen file only updates the displayed name — its bytes are not read.
+function onBuildFile(e) {
+  const f = e.target.files && e.target.files[0];
+  $('#drop-title').textContent = f ? `loaded · ${f.name}` : 'drop a build folder';
+}
+
+// ── submit / staged sequence ────────────────────────────────────────────────
 async function onSubmit(e) {
   e.preventDefault();
-  const url = $('#url').value.trim();
-  const title = $('#title').value.trim();
-  const artist = $('#artist').value.trim();
+  const s = SAMPLES[currentType];
   $('#form-hint').textContent = '';
 
-  if (!/^https?:\/\//i.test(url)) {
-    $('#form-hint').textContent = 'Pegá una URL que empiece con http:// o https://';
+  // Web wants a URL; if given, it must look like one. Everything else is sample.
+  const typedUrl = $('#url').value.trim();
+  if (currentType === 'web' && typedUrl && !/^https?:\/\//i.test(typedUrl)) {
+    $('#form-hint').textContent = 'A URL should start with http:// or https:// — or leave it blank to load the sample.';
     return;
   }
+
+  const title = $('#title').value.trim() || s.title;
+  const artist = $('#artist').value.trim() || s.artist;
+  const source = currentType === 'web' ? (typedUrl || s.source) : s.source;
+  const short = (await sha256Hex(`${currentType}|${title}|${source}|${Date.now()}`)).slice(0, 10);
+
+  const result = { ...s, title, artist, source, signature: short };
 
   $('#descend-btn').disabled = true;
   $('#result').hidden = true;
   $('#descent').hidden = false;
   resetStages();
 
-  // The visual descent and the real work run together; we reveal when both finish.
-  const minChoreography = runDescent();
-  const work = LIVE
-    ? preserveLive({ url, title, artist })
-    : preserveDemo({ url, title, artist });
-
-  let result;
-  try {
-    [result] = await Promise.all([work, minChoreography]);
-  } catch (err) {
-    $('#descent').hidden = true;
-    $('#descend-btn').disabled = false;
-    $('#form-hint').textContent = 'No se pudo preservar: ' + (err.message || err);
-    return;
-  }
+  const choreography = runDescent();
+  await choreography;
 
   lastResult = result;
   markAllStagesDone();
-  await wait(450);
+  await wait(420);
   $('#descent').hidden = true;
   $('#descend-btn').disabled = false;
   renderResult(result);
@@ -92,10 +262,8 @@ async function onSubmit(e) {
   $('#result').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-const STAGES = ['capture', 'release', 'read', 'seal'];
-
 function resetStages() {
-  document.querySelectorAll('.stages li').forEach((li) => li.classList.remove('active', 'done', 'reaching'));
+  document.querySelectorAll('.stages li').forEach((li) => li.classList.remove('active', 'done'));
   $('#diver').style.top = '0px';
 }
 
@@ -103,195 +271,111 @@ function diverTo(li) {
   if (li) $('#diver').style.top = `${li.offsetTop + li.offsetHeight / 2 - 6}px`;
 }
 
-// Only the four working moves animate. The fifth (Revive) is the frontier
-// horizon: it never completes, it is what the funding builds.
 async function runDescent() {
-  const working = [...document.querySelectorAll('.stages li:not(.frontier)')];
-  for (let i = 0; i < working.length; i++) {
-    working.forEach((li, j) => li.classList.toggle('done', j < i));
-    working[i].classList.add('active');
-    diverTo(working[i]);
-    await wait(700 + Math.random() * 500);
+  const stages = [...document.querySelectorAll('.stages li')];
+  for (let i = 0; i < stages.length; i++) {
+    stages.forEach((li, j) => li.classList.toggle('done', j < i));
+    stages[i].classList.add('active');
+    diverTo(stages[i]);
+    await wait(680 + Math.random() * 460);
   }
 }
 
 function markAllStagesDone() {
-  const working = [...document.querySelectorAll('.stages li:not(.frontier)')];
-  working.forEach((li) => { li.classList.remove('active'); li.classList.add('done'); });
-  diverTo(working[working.length - 1]); // rest at "seal", not at the frontier
-  document.querySelector('.stages li.frontier')?.classList.add('reaching');
+  const stages = [...document.querySelectorAll('.stages li')];
+  stages.forEach((li) => { li.classList.remove('active'); li.classList.add('done'); });
+  diverTo(stages[stages.length - 1]);
 }
 
-// ── live preservation (backend) ────────────────────────────────────────────
-async function preserveLive({ url, title, artist }) {
-  const r = await fetch('/api/preserve', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, title, artist }),
-  });
-  const data = await r.json();
-  if (!data.ok) throw new Error(data.error || 'fallo del motor');
-  return normalize(data.result, false);
-}
-
-// ── demo preservation (no backend) ─────────────────────────────────────────
-async function preserveDemo({ url, title, artist }) {
-  await wait(300);
-  const host = safeHost(url);
-  const hash = await sha256Hex(`${url}|${title}|${Date.now()}`);
-  const bpm = 40 + (parseInt(hash.slice(0, 4), 16) % 57);
-
-  // Plausible, clearly-illustrative sample for an art game.
-  const engines = ['Three.js', 'Unity (WebGL)', 'p5.js', 'PixiJS'];
-  const engine = engines[parseInt(hash.slice(4, 6), 16) % engines.length];
-  const deps = [
-    { host: 'unpkg.com', ok: true, risk: 'medium', note: 'externa, copiada local' },
-    { host: 'cdnjs.cloudflare.com', ok: false, risk: 'high', note: 'bloqueada (403), ya inalcanzable' },
-  ];
-  const apis = [
-    { name: 'WebGL', risk: 'low' },
-    { name: 'WebGL2', risk: 'low' },
-    { name: 'Web Audio', risk: 'low' },
-    { name: 'Gamepad API', risk: 'medium' },
-  ];
-
-  return normalize(
-    {
-      slug: 'demo',
-      capturedAt: new Date().toISOString(),
-      heartbeat: { root: hash, short: hash.slice(0, 12), bpm },
-      passport: {
-        title: title || host,
-        artist: artist || 'Artista desconocida',
-        sourceUrl: url,
-        riskLevel: 'fragile',
-        stack: { engine, libraries: ['Howler.js'], browserApis: apis, deadTech: [] },
-        externalDependencies: deps,
-        resources: { captured: 7, atRisk: 1, total: 8 },
-        narrative:
-          `${title || 'Esta obra'} corre sobre ${engine} en el navegador. Una de sus ` +
-          `dependencias (cdnjs) ya está bloqueada: fue la primera en pudrirse. El resto se ` +
-          `bajó local, así que la obra ya no depende de que esos servidores sigan vivos. ` +
-          `(Datos de ejemplo. Corré el motor local para preservar de verdad.)`,
-      },
-      playableUrl: null,
-    },
-    true
-  );
-}
-
-// Normalize live/demo into one shape the renderer uses.
-function normalize(res, isDemo) {
-  const p = res.passport;
-  return {
-    slug: res.slug,
-    isDemo,
-    capturedAt: res.capturedAt,
-    title: p.title,
-    artist: p.artist,
-    sourceUrl: p.sourceUrl,
-    riskLevel: p.riskLevel,
-    engine: p.stack.engine,
-    libraries: p.stack.libraries || [],
-    browserApis: p.stack.browserApis || [],
-    deadTech: p.stack.deadTech || [],
-    deps: p.externalDependencies || [],
-    resources: p.resources,
-    narrative: p.narrative,
-    heartbeat: res.heartbeat,
-    playableUrl: res.playableUrl,
-    passport: p,
-  };
-}
-
-// ── render result ──────────────────────────────────────────────────────────
+// ── render the preserved edition ────────────────────────────────────────────
 function renderResult(r) {
   $('#result').hidden = false;
+  $('#result').dataset.path = r.path;
   $('#res-title').textContent = r.title;
   $('#res-artist').textContent = r.artist;
-  // the same root hash: sealed on the relic, beating on the revival
-  $('#res-hash').textContent = r.heartbeat.short;
-  const liveHash = $('#res-hash-live');
-  if (liveHash) liveHash.textContent = r.heartbeat.short;
-  $('#res-bpm').textContent = r.heartbeat.bpm;
+  $('#res-kind').textContent = r.kind;
+  $('#res-hash').textContent = r.signature;
+  $('#res-hash-2').textContent = r.signature;
 
   const risk = $('#res-risk');
-  risk.textContent = riskLabel(r.riskLevel);
-  risk.className = 'risk-badge ' + r.riskLevel;
+  risk.textContent = riskLabel(r.risk.level);
+  risk.className = 'risk-badge ' + r.risk.level;
 
-  const rotting = r.riskLevel === 'critical' || r.deps.some((d) => !d.ok);
-  $('#heart').classList.toggle('rotting', rotting);
-  document.documentElement.style.setProperty('--beat', (60 / r.heartbeat.bpm).toFixed(2) + 's');
+  // the original — the captured object at a glance
+  $('#orig-sub').textContent = r.origSub;
+  const origKv = r.type === 'web'
+    ? [['runtime', r.runtime], ['state', r.origState]]
+    : [['engine', r.runtime], ['state', r.origState]];
+  fillKv('#orig-kv', origKv);
 
-  $('#pp-engine').textContent = r.engine;
-  $('#pp-libs').textContent = r.libraries.length ? r.libraries.join(', ') : '—';
-  $('#pp-apis').textContent = r.browserApis.length
-    ? r.browserApis.map((a) => a.name).join(', ')
-    : '—';
-  $('#pp-res').textContent = `${r.resources.captured} capturados · ${r.resources.atRisk} en riesgo · ${r.resources.total} total`;
-  $('#pp-narrative').textContent = r.narrative;
+  // the recollection — rebuilt by AI, the frontier
+  $('#rec-copy').textContent = r.recollection.lead;
+  const prov = $('#rec-prov');
+  prov.innerHTML = '';
+  for (const p of r.recollection.provenance) {
+    const li = document.createElement('li');
+    li.className = p.origin === 'captured' ? 'orig' : 'ai';
+    li.innerHTML = `<span class="prov-dot"></span><span class="prov-part">${esc(p.part)}</span><span class="prov-tag">${p.origin === 'captured' ? 'original' : 'reconstructed'}</span>`;
+    prov.appendChild(li);
+  }
 
+  // the passport — the deep read
+  fillKv('#pp-built', r.built);
+  const res = $('#pp-res');
+  if (r.resources) {
+    res.hidden = false;
+    res.textContent = `${r.resources.captured} files captured · ${r.resources.localized} localized into the edition · ${r.resources.lost} gone, flagged`;
+  } else {
+    res.hidden = true;
+  }
   const list = $('#deps-list');
   list.innerHTML = '';
-  if (!r.deps.length) {
-    list.innerHTML = '<li class="dep alive"><span class="dep-dot"></span><span class="dep-host">Ya era autocontenida</span></li>';
-  }
   for (const d of r.deps) {
     const li = document.createElement('li');
-    li.className = 'dep ' + (d.ok ? 'alive' : 'dead');
-    li.innerHTML = `<span class="dep-dot"></span><span class="dep-host">${esc(d.host)}</span><span class="dep-note">${esc(d.note || (d.ok ? 'viva' : 'muerta'))}</span>`;
+    li.className = 'dep ' + d.status;
+    li.innerHTML = `<span class="dep-dot"></span><span class="dep-host">${esc(d.host)}</span><span class="dep-note">${esc(d.note)}</span>`;
     list.appendChild(li);
   }
+  $('#pp-risk').innerHTML = `${esc(r.risk.report)}<span class="cursor"></span>`;
 
-  const play = $('#play-link');
-  if (r.playableUrl) {
-    play.hidden = false;
-    play.href = r.playableUrl;
-  } else {
-    play.hidden = true;
-  }
-}
-
-// ── contract ────────────────────────────────────────────────────────────────
-function renderContractQuestions() {
-  const wrap = $('#contract-questions');
-  wrap.innerHTML = '';
-  for (const q of CONTRACT_QUESTIONS) {
+  // the score — editable, prefilled to read as authored
+  const grid = $('#score-grid');
+  grid.innerHTML = '';
+  for (const f of SCORE_FIELDS) {
     const div = document.createElement('div');
     div.className = 'cq';
-    div.innerHTML = `<label for="cq-${q.id}">${q.label}</label><p class="cq-prompt">${q.prompt}</p><textarea id="cq-${q.id}" data-id="${q.id}" rows="2"></textarea>`;
-    wrap.appendChild(div);
+    div.innerHTML =
+      `<label for="cq-${f.id}">${f.label}</label>` +
+      `<p class="cq-prompt">${f.prompt}</p>` +
+      `<textarea id="cq-${f.id}" data-id="${f.id}" rows="2"></textarea>`;
+    grid.appendChild(div);
+    div.querySelector('textarea').value = r.score[f.id] || '';
   }
 }
 
-function collectContractAnswers() {
-  const answers = {};
-  document.querySelectorAll('#contract-questions textarea').forEach((t) => {
-    if (t.value.trim()) answers[t.dataset.id] = t.value.trim();
-  });
-  return answers;
+function fillKv(sel, pairs) {
+  const dl = $(sel);
+  dl.innerHTML = '';
+  for (const [dt, dd] of pairs) {
+    const t = document.createElement('dt');
+    t.textContent = dt;
+    const d = document.createElement('dd');
+    d.textContent = dd;
+    dl.append(t, d);
+  }
 }
 
 // ── archive (localStorage) ───────────────────────────────────────────────────
 function loadArchive() {
-  try {
-    return JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]');
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]'); }
+  catch { return []; }
 }
 
 function saveToArchive(r) {
   const archive = loadArchive();
   archive.unshift({
-    title: r.title,
-    artist: r.artist,
-    sourceUrl: r.sourceUrl,
-    short: r.heartbeat.short,
-    bpm: r.heartbeat.bpm,
-    riskLevel: r.riskLevel,
-    rotting: r.riskLevel === 'critical' || r.deps.some((d) => !d.ok),
-    capturedAt: r.capturedAt,
+    title: r.title, artist: r.artist, kind: r.kind,
+    signature: r.signature, level: r.risk.level, at: new Date().toISOString(),
   });
   localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive.slice(0, 60)));
 }
@@ -301,45 +385,63 @@ function renderArchive() {
   const reef = $('#reef');
   reef.innerHTML = '';
   $('#archive-count').textContent = archive.length
-    ? `${archive.length} obra${archive.length === 1 ? '' : 's'} latiendo`
-    : 'vacío todavía';
+    ? `${archive.length} edition${archive.length === 1 ? '' : 's'} · sample`
+    : 'empty so far';
   if (!archive.length) {
-    reef.innerHTML = '<p class="reef-empty">Todavía no trajiste ninguna obra. Empezá arriba.</p>';
+    reef.innerHTML = '<p class="reef-empty">No editions yet. Preserve one above.</p>';
     return;
   }
   for (const w of archive) {
     const node = document.createElement('div');
-    node.className = 'node' + (w.rotting ? ' rotting' : '');
-    node.style.setProperty('--beat', (60 / (w.bpm || 60)).toFixed(2) + 's');
-    node.innerHTML = `<span class="node-beat"></span><span class="node-title">${esc(w.title)}</span><span class="node-artist">${esc(w.artist)}</span><span class="node-hash">${esc(w.short)} · ${w.bpm} bpm</span>`;
-    node.title = w.sourceUrl;
-    node.addEventListener('click', () => window.open(w.sourceUrl, '_blank', 'noopener'));
+    node.className = 'node';
+    node.innerHTML =
+      `<span class="node-sig" aria-hidden="true"></span>` +
+      `<span class="node-title">${esc(w.title)}</span>` +
+      `<span class="node-artist">${esc(w.artist)} · ${esc(w.kind)}</span>` +
+      `<span class="node-hash">signature ${esc(w.signature)}</span>`;
     reef.appendChild(node);
   }
 }
 
-// ── misc ────────────────────────────────────────────────────────────────────
+// ── actions ──────────────────────────────────────────────────────────────────
 function downloadPassport() {
   if (!lastResult) return;
-  const blob = new Blob([JSON.stringify(lastResult.passport, null, 2)], { type: 'application/json' });
+  const r = lastResult;
+  const passport = {
+    _note: 'Sample edition from the revenant interface preview. Not a real preservation.',
+    title: r.title, artist: r.artist, type: r.kind, source: r.source,
+    signature: r.signature,
+    builtOn: Object.fromEntries(r.built),
+    dependencies: r.deps,
+    resources: r.resources || null,
+    obsolescenceRisk: r.risk,
+    recollection: r.recollection,
+    score: collectScore(),
+  };
+  const blob = new Blob([JSON.stringify(passport, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `passport-${(lastResult.title || 'obra').toLowerCase().replace(/\s+/g, '-')}.json`;
+  a.download = `passport-${(r.title || 'work').toLowerCase().replace(/\s+/g, '-')}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+function collectScore() {
+  const out = {};
+  document.querySelectorAll('#score-grid textarea').forEach((t) => {
+    if (t.value.trim()) out[t.dataset.id] = t.value.trim();
+  });
+  return out;
 }
 
 function resetToForm() {
   $('#result').hidden = true;
   $('#bay').scrollIntoView({ behavior: 'smooth' });
-  $('#url').focus();
 }
 
+// ── helpers ──────────────────────────────────────────────────────────────────
 function riskLabel(level) {
-  return { stable: 'estable', fragile: 'frágil', critical: 'crítica' }[level] || level;
-}
-function safeHost(url) {
-  try { return new URL(url).host; } catch { return 'obra'; }
+  return { stable: 'stable', fragile: 'fragile', critical: 'high risk' }[level] || level;
 }
 async function sha256Hex(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -347,111 +449,24 @@ async function sha256Hex(str) {
 }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-// ── corecore effects: generate the repetitive / textural content ───────────
+// ── corecore textures: only the ones the page actually uses ──────────────────
 function buildEffects() {
-  // marquees — duplicate the unit so translateX(-50%) loops seamlessly
+  // top marquee — duplicate the unit so translateX(-50%) loops seamlessly
   document.querySelectorAll('.marquee-track').forEach((t) => {
     const msg = (t.dataset.marquee || t.textContent || '').trim();
     const unit = `${esc(msg)} <span class="amp">&amp;&amp;&amp;</span> `;
-    const half = unit.repeat(6);
-    t.innerHTML = half + half;
-  });
-  // echo / stack — copies rising behind a front layer, every 3rd in red
-  document.querySelectorAll('.echo').forEach((e) => {
-    const word = e.dataset.text || e.textContent.trim() || 'echo';
-    const n = parseInt(e.dataset.echo || '10', 10);
-    e.textContent = '';
-    for (let i = n; i >= 1; i--) {
-      const s = document.createElement('span');
-      s.className = 'layer';
-      s.textContent = word;
-      s.style.transform = `translate(0, ${(i * 0.1).toFixed(2)}em)`; // vertical stack
-      s.style.opacity = Math.max(0.05, 0.5 - i / (n * 2.2)).toFixed(2);
-      if (i % 3 === 0) s.style.color = 'var(--red)';
-      e.appendChild(s);
-    }
-    const front = document.createElement('span');
-    front.textContent = word;
-    e.appendChild(front);
-  });
-  // hex / data textures
-  document.querySelectorAll('[data-hex]').forEach((h) => {
-    h.innerHTML = genHex(240);
-  });
-  // ampersand ornament rules
-  document.querySelectorAll('.amp-rule').forEach((a) => {
-    a.textContent = (a.dataset.amp || '&').repeat(300);
-  });
-  // echo-stack buttons — layers fan out one by one on hover (staggered delay)
-  document.querySelectorAll('.echo-btn').forEach((b) => {
-    const word = b.dataset.text || b.textContent.trim() || 'echo';
-    const n = parseInt(b.dataset.echoBtn || '12', 10);
-    b.textContent = '';
-    for (let i = n; i >= 1; i--) {
-      const s = document.createElement('span');
-      s.className = 'ebl';
-      s.textContent = word;
-      s.style.setProperty('--x', '0em'); // vertical stack
-      s.style.setProperty('--y', `${(i * 0.16).toFixed(2)}em`);
-      s.style.setProperty('--o', Math.max(0.05, 0.5 - i / (n * 2)).toFixed(2));
-      s.style.transitionDelay = `${i * 40}ms`;
-      if (i % 3 === 0) s.style.color = 'var(--red)';
-      b.appendChild(s);
-    }
-    const f = document.createElement('span');
-    f.className = 'front';
-    f.textContent = word;
-    b.appendChild(f);
-  });
-  // wavy — each letter bobs with a staggered delay
-  document.querySelectorAll('.wavy').forEach((w) => {
-    const t = w.dataset.wavy || w.textContent || '';
-    w.textContent = '';
-    [...t].forEach((ch, i) => {
-      const s = document.createElement('span');
-      s.textContent = ch === ' ' ? ' ' : ch;
-      s.style.animationDelay = `${(i * 0.06).toFixed(2)}s`;
-      w.appendChild(s);
-    });
+    t.innerHTML = unit.repeat(6) + unit.repeat(6);
   });
   // vertical ticker — duplicated list for a seamless loop
   document.querySelectorAll('[data-ticker]').forEach((t) => {
-    const items = ['the last server is dying', 'flash † 2021', 'geocities † 2009', '404 not found', 'wss:// closed', 'keep it beating', 'dead.link/'];
+    const items = ['the last server is dying', 'flash † 2021', 'geocities † 2009', '404 not found', 'wss:// closed', 'keep it running', 'dead.link/'];
     const html = items.map((x) => `<div>${esc(x)} <span class="hl">&amp;&amp;</span></div>`).join('');
     t.innerHTML = html + html;
   });
-  // ascii frame edges (top carries a title, bottom is plain)
-  document.querySelectorAll('[data-frame]').forEach((f) => {
-    const title = f.dataset.frame;
-    const dash = '─'.repeat(90);
-    f.textContent = title ? `┌─ ${title} ${dash}` : `└${dash}`;
-  });
-  // ascii / dither texture
-  document.querySelectorAll('[data-ascii]').forEach((a) => {
-    const chars = ' .:-=+*#%@░▒▓█';
-    let rows = '';
-    for (let r = 0; r < 13; r++) {
-      let line = '';
-      for (let c = 0; c < 88; c++) line += chars[(Math.random() * chars.length) | 0];
-      rows += line + '\n';
-    }
-    a.textContent = rows;
-  });
-}
-
-function genHex(n) {
-  const frag = ['https://', 'revenant.dead/', '404/', 'GET ', 'wss://', 'sha256:', '0xDEAD', 'cdn.cache/', '/editions/', 'beat=', 'null ', 'undefined ', '%E2%98%A0', '</body>', 'dead.link/'];
-  let out = '';
-  for (let i = 0; i < n; i++) {
-    const f = frag[(Math.random() * frag.length) | 0];
-    const h = Math.random().toString(16).slice(2, 10);
-    const chunk = `${f}${h} `;
-    out += Math.random() < 0.12 ? `<span class="hl">${chunk}</span>` : chunk;
-  }
-  return out;
 }
 
 boot();

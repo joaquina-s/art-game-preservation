@@ -1,22 +1,28 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>revenant — preservación de art games</title>
+    <title>revenant — art game preservation (interface preview)</title>
     <meta
       name="description"
-      content="Una herramienta para preservar art games: mantiene las obras vivas, autocontenidas y latiendo."
+      content="An interface preview of a tool that keeps art games running as their engines and servers die, with AI acting as memory to rebuild what died within the limits the artist sets. Sample data — nothing is preserved live."
     />
     <link rel="stylesheet" href="styles.css" />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%230c0c0c' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%230c0c0c'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%231a1aff' d='M50 0l10 30 30-15-15 30 25 5-25 5 15 30-30-15-10 30-10-30-30 15 15-30L0 55l25-5L10 20l30 15z'/%3E%3C/svg%3E"
     />
   </head>
   <body>
     <div class="marquee">
-      <div class="marquee-track" data-marquee="revenant — preservá memoria jugable — el último server se está muriendo — todo lo que amaste es un enlace roto — keep it beating"></div>
+      <div class="marquee-track" data-marquee="the last server is dying — every CDN goes dark — the link you saved is already broken — keep the work running"></div>
+    </div>
+
+    <!-- ░░ persistent honesty note ░░ -->
+    <div class="preview-bar" role="note">
+      <span class="rec blink" aria-hidden="true"></span>
+      <span>interface preview — sample data, illustrative output. nothing is preserved live.</span>
     </div>
 
     <header class="masthead">
@@ -26,451 +32,171 @@
           <span class="glitch logo-word" data-text="revenant">revenant</span>
         </span>
       </div>
-      <div class="mode" id="mode-pill" title="Estado del motor">
-        <span class="mode-dot"></span><span id="mode-text">conectando…</span>
+      <div class="mode demo" id="mode-pill" title="This is a front-end preview">
+        <span class="mode-dot"></span><span id="mode-text">preview</span>
       </div>
     </header>
 
     <main>
       <!-- ░░ INTRO ░░ -->
       <section class="intro">
-        <h1>que la obra <span class="red">siga respirando</span></h1>
-        <p class="lede">
-          Los art games mueren con sus servidores. revenant captura la obra y trae su mundo
-          de vuelta como una <em>edición viva</em> que podés volver a habitar. La IA acá es
-          memoria: recuerda la obra de regreso a la vida.
-        </p>
+        <div class="intro-main">
+          <h1>keep the work <span class="red">running</span></h1>
+          <p class="lede">
+            Art games die when their engines go unmaintained and their servers shut down.
+            revenant makes a self-contained copy that keeps running, and reads exactly what
+            each work is built on. Where a piece of its world is already gone, the AI works as
+            memory: it rebuilds what died, inside the limits the artist sets.
+          </p>
+        </div>
+        <aside class="intro-ticker" aria-hidden="true">
+          <div class="ticker"><div class="ticker-track" data-ticker></div></div>
+        </aside>
       </section>
 
-      <!-- ░░ DESCENT / FORM ░░ -->
+      <!-- ░░ UPLOAD / TYPE / STAGED SEQUENCE ░░ -->
       <section class="descent-bay" id="bay">
         <form id="preserve-form" class="ritual">
-          <label class="field">
-            <span class="field-label">La obra</span>
+          <fieldset class="typepick">
+            <legend class="field-label">what are you preserving?</legend>
+            <div class="types" id="types">
+              <button type="button" class="type" data-type="web" aria-pressed="true">web / webgl</button>
+              <button type="button" class="type" data-type="unreal" aria-pressed="false">unreal build</button>
+              <button type="button" class="type" data-type="unity" aria-pressed="false">unity build</button>
+            </div>
+          </fieldset>
+
+          <!-- web input -->
+          <label class="field" id="field-url">
+            <span class="field-label">the work (url)</span>
             <div class="fld fld--term">
               <span class="p" aria-hidden="true">&gt;</span>
-              <input type="url" id="url" name="url" placeholder="https://tu-art-game.example" autocomplete="off" required />
+              <input type="url" id="url" name="url" placeholder="https://your-art-game.example" autocomplete="off" />
             </div>
           </label>
+
+          <!-- engine input (simulated drop) -->
+          <div class="field dropzone" id="field-drop" hidden>
+            <span class="field-label">the build</span>
+            <label class="drop">
+              <input type="file" id="buildfile" class="visually-hidden" />
+              <span class="drop-inner">
+                <span class="drop-title" id="drop-title">drop a build folder</span>
+                <span class="drop-sub">this preview loads a sample project — <b id="drop-sample">—</b></span>
+              </span>
+            </label>
+          </div>
+
           <div class="field-row">
             <label class="field">
-              <span class="field-label">Título</span>
+              <span class="field-label">title</span>
               <div class="fld fld--term"><span class="p" aria-hidden="true">&gt;</span><input type="text" id="title" name="title" placeholder="One More Sim" autocomplete="off" /></div>
             </label>
             <label class="field">
-              <span class="field-label">Artista</span>
+              <span class="field-label">artist</span>
               <div class="fld fld--term"><span class="p" aria-hidden="true">&gt;</span><input type="text" id="artist" name="artist" placeholder="Joaquina Salgado" autocomplete="off" /></div>
             </label>
           </div>
+
           <div class="form-links">
-            <button type="submit" class="link-stretch" id="descend-btn">traer al archivo</button>
-            <button type="button" class="echo-btn" id="echo-demo" data-echo-btn="14" data-text="otra cosa"></button>
+            <button type="submit" class="link-stretch" id="descend-btn">preserve the work</button>
+            <span class="form-note">preview · loads illustrative sample output</span>
           </div>
           <p class="form-hint" id="form-hint"></p>
         </form>
 
-        <!-- descent animation -->
+        <!-- staged sequence -->
         <div class="descent" id="descent" hidden>
           <div class="depth-line"><span class="diver" id="diver"></span></div>
           <ol class="stages" id="stages">
-            <li data-phase="capture"><span class="stage-dot"></span><span class="stage-text">Bajando hasta la obra</span></li>
-            <li data-phase="release"><span class="stage-dot"></span><span class="stage-text">Soltándola de los servidores muertos</span></li>
-            <li data-phase="read"><span class="stage-dot"></span><span class="stage-text">Leyendo su cuerpo</span></li>
-            <li data-phase="seal"><span class="stage-dot"></span><span class="stage-text">Sellando el latido en la reliquia</span></li>
-            <li data-phase="revive" class="frontier"><span class="stage-dot"></span><span class="stage-text">Revivir su mundo <span class="frontier-tag">la frontera</span></span></li>
+            <li data-phase="capture"><span class="stage-dot"></span><span class="stage-text">Capturing the work and everything it loads</span></li>
+            <li data-phase="release"><span class="stage-dot"></span><span class="stage-text">Cutting it loose from servers that are gone</span></li>
+            <li data-phase="read"><span class="stage-dot"></span><span class="stage-text">Reading what it is built on</span></li>
+            <li data-phase="seal"><span class="stage-dot"></span><span class="stage-text">Sealing a signature over every file</span></li>
           </ol>
           <p class="frontier-note">
-            Las primeras cuatro corren de verdad y producen la reliquia y el contrato que define
-            los límites del revival. Revivir su mundo es lo que este fondo construye.
+            These four run in the real tool: they produce the original, the passport and the
+            signature. Rebuilding what died — the recollection — is the frontier this work funds.
           </p>
         </div>
       </section>
 
-      <!-- ░░ RESULT — living edition = relic + revival ░░ -->
+      <!-- ░░ PRESERVED EDITION ░░ -->
       <section class="result" id="result" hidden>
         <header class="edition-head">
-          <p class="eyebrow">edición viva · living edition</p>
+          <p class="eyebrow">preserved edition · preview</p>
           <h2 id="res-title">—</h2>
-          <p class="res-sub" id="res-artist">—</p>
-          <p class="edition-line">Dos copias de la misma obra: la reliquia y el revival.</p>
+          <p class="res-sub"><span id="res-artist">—</span> · <span id="res-kind">—</span></p>
+          <p class="signature-line">signature <code id="res-hash">—</code> · a fingerprint over every file; change one byte and it changes.</p>
         </header>
 
         <div class="edition">
-          <!-- THE RELIC — cool, still, archival -->
-          <article class="relic" aria-label="la reliquia">
+          <!-- THE ORIGINAL — untouched -->
+          <article class="original" aria-label="the original">
             <header class="panel-head">
-              <p class="panel-tag">la reliquia · the relic</p>
-              <p class="panel-sub">el original, congelado, la verdad</p>
+              <p class="panel-tag">the original · untouched</p>
+              <p class="panel-sub" id="orig-sub">the work exactly as captured</p>
             </header>
-            <dl class="kv">
-              <dt>Motor / runtime</dt><dd id="pp-engine">—</dd>
-              <dt>Librerías</dt><dd id="pp-libs">—</dd>
-              <dt>APIs del navegador</dt><dd id="pp-apis">—</dd>
-              <dt>Recursos</dt><dd id="pp-res">—</dd>
-            </dl>
-            <p class="narrative" id="pp-narrative">—</p>
-            <ul class="deps" id="deps-list"></ul>
-            <p class="seal-line">sellada <code id="res-hash">—</code> · estado <span class="risk-badge" id="res-risk">—</span></p>
+            <dl class="kv" id="orig-kv"></dl>
+            <p class="seal-line">sealed <code id="res-hash-2">—</code> · <span class="risk-badge" id="res-risk">—</span></p>
           </article>
 
-          <!-- THE REVIVAL — warm, breathing, the frontier (ghosted/dashed) -->
-          <article class="revival" aria-label="el revival">
+          <!-- THE RECOLLECTION — rebuilt by AI, the frontier (ghosted/dashed) -->
+          <article class="recollection" aria-label="the recollection">
             <header class="panel-head">
-              <p class="panel-tag">el revival · recordado por IA <span class="frontier-tag">la frontera</span></p>
-              <p class="panel-sub">el mundo recordado de vuelta a la vida</p>
+              <p class="panel-tag">the recollection · rebuilt by AI <span class="frontier-tag">the frontier</span></p>
+              <p class="panel-sub">a copy that keeps running; where its world is gone, rebuilt</p>
             </header>
-            <div class="revival-stage">
-              <div class="heart" id="heart">
-                <span class="heart-core"></span>
-                <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
-              </div>
-              <p class="heart-hash">latido <code id="res-hash-live">—</code> · <span id="res-bpm">—</span> bpm</p>
-            </div>
-            <p class="revival-copy">
-              La IA vuelve a performar lo que murió: los jugadores ausentes, los datos en vivo
-              que ya no existen, el contexto perdido. El latido vive acá, porque el revival es
-              la parte que respira.
-            </p>
-            <ul class="provenance">
-              <li class="orig"><span class="prov-dot"></span>original capturado</li>
-              <li class="ai"><span class="prov-dot"></span>recordado por IA</li>
-            </ul>
-            <p class="bounded">revival acotado por el contrato del artista ↓</p>
+            <p class="recollection-copy" id="rec-copy">—</p>
+            <ul class="provenance" id="rec-prov"></ul>
+            <p class="bounded">bounded by the score ↓</p>
           </article>
         </div>
 
-        <!-- the rules of the revival (formerly the intent contract) -->
-        <article class="contract-card">
-          <h3>las reglas del revival <span class="muted">qué puede traer de vuelta la IA</span></h3>
-          <p class="contract-intro">
-            El artista define los límites antes de que la obra se hunda en el tiempo: qué puede
-            recordar la IA, qué es sagrado, hasta dónde puede reconstruir. El revival obedece
-            estas reglas.
-          </p>
-          <div class="contract-questions" id="contract-questions"></div>
+        <!-- passport -->
+        <article class="passport-card">
+          <h3>the passport <span class="muted">what the work is built on, and what threatens it</span></h3>
+          <dl class="kv" id="pp-built"></dl>
+          <p class="pp-resline" id="pp-res" hidden></p>
+          <ul class="deps" id="deps-list"></ul>
+          <div class="hld hld--terminal risk-report">
+            <h4><span class="prmpt">&gt;</span> obsolescence report</h4>
+            <p id="pp-risk">—<span class="cursor"></span></p>
+          </div>
+        </article>
+
+        <!-- score -->
+        <article class="score-card">
+          <h3>the score <span class="muted">what is sacred, what may change, how far to rebuild</span></h3>
+          <p class="sh sh--margin score-note"><span class="note">the recollection obeys this →</span>The tool never rebuilds past these limits. Every line is the artist's to edit.</p>
+          <div class="score-grid" id="score-grid"></div>
         </article>
 
         <div class="result-actions">
-          <a class="ghost-btn" id="play-link" href="#" target="_blank" rel="noopener" hidden>Abrir la reliquia ↗</a>
-          <button class="ghost-btn" id="download-passport">Descargar pasaporte (.json)</button>
-          <button class="ghost-btn" id="another-btn">Preservar otra</button>
+          <button class="lk lk-2 asbtn" id="download-passport">download passport (.json)</button>
+          <button class="lk lk-2 asbtn" id="another-btn">preserve another</button>
         </div>
       </section>
 
       <!-- ░░ ARCHIVE ░░ -->
       <section class="archive" id="archive-section">
         <div class="archive-head">
-          <h2>El archivo</h2>
-          <p class="muted" id="archive-count">vacío todavía</p>
+          <h2 class="graintext">the archive</h2>
+          <p class="muted" id="archive-count">empty so far</p>
         </div>
         <div class="reef" id="reef"></div>
-      </section>
-
-      <!-- ░░ EFFECTS LAB — distintos efectos para elegir ░░ -->
-      <section class="lab">
-        <div class="lab-intro">
-          <h2>effects lab</h2>
-          <p>
-            Tratamientos de texto, forma y color en clave corecore / internet-core. Decime cuáles
-            te gustan (por número) y los dejamos en la herramienta; el resto se borra.
-          </p>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_01</span>
-          <p class="fx-name">eco / stack</p>
-          <div class="echo" data-echo="11" data-text="memoria"></div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_02</span>
-          <p class="fx-name">marquesina</p>
-          <div class="marquee">
-            <div class="marquee-track" data-marquee="every CDN dies — cada CDN se muere — flash murió en 2021 — el link que guardaste ya no existe"></div>
-          </div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_03</span>
-          <p class="fx-name">tipo estirada</p>
-          <div class="stretch tall">preservar</div>
-          <div class="stretch flat" style="margin-top:24px">obsoleto</div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_04</span>
-          <p class="fx-name">glitch rgb</p>
-          <span class="glitch" data-text="corecore">corecore</span>
-        </div>
-
-        <div class="fx invert">
-          <span class="fx-tag">fx_05</span>
-          <p class="fx-name">banda hex / data</p>
-          <div class="hexband" data-hex></div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_06</span>
-          <p class="fx-name">estrella roja</p>
-          <div class="starwrap">
-            <svg class="redstar" viewBox="0 0 100 100" aria-hidden="true">
-              <path fill="#e5251b" d="M50 0l10 30 30-15-15 30 25 5-25 5 15 30-30-15-10 30-10-30-30 15 15-30L0 55l25-5L10 20l30 15z"/>
-            </svg>
-            <span class="on-star">revenant</span>
-          </div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_07</span>
-          <p class="fx-name">ventana de escritorio</p>
-          <div class="win">
-            <div class="win-bar"><span class="dot"></span><span class="dot"></span><span class="dot r"></span><span class="win-title">revenant.exe — preservando…</span></div>
-            <div class="win-body">
-              &gt; capturando la obra<br />
-              &gt; soltándola de los servidores muertos<br />
-              &gt; sellando el latido <span class="cursor"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_08</span>
-          <p class="fx-name">ruido / dither</p>
-          <div class="noiseblock">
-            <svg aria-hidden="true"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>
-            <span class="label">ruido</span>
-          </div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_09</span>
-          <p class="fx-name">web vieja / blink</p>
-          <div class="oldweb">
-            <span class="uc blink">▓ bajo construcción ▓</span> &nbsp; — &nbsp; last seen: 1998 &nbsp; — &nbsp;
-            <span class="amp-rule red" data-amp="&" style="display:inline-block;max-width:200px;vertical-align:middle"></span>
-          </div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_10</span>
-          <p class="fx-name">onda / wavy</p>
-          <div class="wavy" data-wavy="se desvanece"></div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_11</span>
-          <p class="fx-name">ticker vertical</p>
-          <div class="ticker"><div class="ticker-track" data-ticker></div></div>
-        </div>
-
-        <div class="fx invert">
-          <span class="fx-tag">fx_12</span>
-          <p class="fx-name">ascii / dither</p>
-          <div class="ascii" data-ascii></div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_13</span>
-          <p class="fx-name">rotado / skew</p>
-          <div class="rotword">net<span class="blue">core</span></div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_14</span>
-          <p class="fx-name">contorno / hollow</p>
-          <div class="hollow">preserv<span class="blue">ar</span></div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_15</span>
-          <p class="fx-name">número gigante</p>
-          <div class="giant">20<span class="blue">26</span></div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_16</span>
-          <p class="fx-name">links / hipervínculos — para reemplazar botones (pasá el mouse)</p>
-          <div class="linkgrid">
-            <div class="linkcell"><span class="ln-label">01 · clásico</span><a class="lk lk-1">entrar al archivo</a></div>
-            <div class="linkcell"><span class="ln-label">02 · estira</span><a class="lk lk-2">entrar al archivo</a></div>
-            <div class="linkcell"><span class="ln-label">03 · resalte rojo</span><a class="lk lk-3">entrar al archivo</a></div>
-            <div class="linkcell"><span class="ln-label">04 · glitch</span><a class="lk lk-4">entrar al archivo</a></div>
-            <div class="linkcell"><span class="ln-label">05 · corchetes</span><a class="lk lk-5">entrar al archivo</a></div>
-            <div class="linkcell"><span class="ln-label">06 · flecha</span><a class="lk lk-6">entrar al archivo <span class="arw">&rarr;</span></a></div>
-            <div class="linkcell"><span class="ln-label">07 · invertir</span><a class="lk lk-7">entrar al archivo</a></div>
-            <div class="linkcell"><span class="ln-label">08 · subrayado anim</span><a class="lk lk-8">entrar al archivo</a></div>
-            <div class="linkcell"><span class="ln-label">09 · tachado</span><a class="lk lk-9">entrar al archivo</a></div>
-            <div class="linkcell"><span class="ln-label">10 · espaciado</span><a class="lk lk-10">entrar al archivo</a></div>
-          </div>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_17</span>
-          <p class="fx-name">texto blur / halo</p>
-          <span class="blurtext" data-text="desvanecido">desvanecido</span>
-        </div>
-
-        <div class="fx">
-          <span class="fx-tag">fx_18</span>
-          <p class="fx-name">texto con grano</p>
-          <span class="graintext">corecore</span>
-        </div>
-
-        <div class="fx" style="padding:0">
-          <span class="fx-tag" style="z-index:2">fx_19</span>
-          <p class="fx-name" style="padding:30px var(--pad) 0">bloque nube · blur + noise</p>
-          <div class="cloudblock">
-            <div class="haze"></div>
-            <div class="soft-copy"><b>preservar es recordar.</b> esta obra corre sobre un motor que ya nadie mantiene; lo que queda es una copia que sobrevive a la muerte de sus servidores.</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ░░ TEXT HOLDERS — cajas de texto para elegir ░░ -->
-      <section class="lab holders-lab">
-        <div class="lab-intro">
-          <h2>text holders</h2>
-          <p>
-            Cajas para contener texto, cada una con su estilo corecore. Decime cuáles te
-            gustan (h_01…h_12) y las uso para los bloques de la herramienta — pasaporte,
-            contrato, narrativa, dependencias.
-          </p>
-        </div>
-        <div class="holdergrid">
-
-          <div class="holdercell"><span class="h-label">h_01 · ventana</span>
-            <div class="hld hld--window">
-              <div class="hld-bar"><span class="d"></span><span class="d"></span><span class="d r"></span><span class="t">conservacion.txt</span></div>
-              <div class="hld-body"><h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p></div>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_02 · terminal</span>
-            <div class="hld hld--terminal">
-              <h4><span class="prmpt">&gt;</span> revenant --note</h4>
-              <p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.<span class="cursor"></span></p>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_03 · brutal</span>
-            <div class="hld hld--brutal">
-              <h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_04 · ascii</span>
-            <div class="hld hld--ascii">
-              <div class="frame" data-frame="nota"></div>
-              <div class="hld-body"><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p></div>
-              <div class="frame" data-frame></div>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_05 · corchetes</span>
-            <div class="hld hld--bracket">
-              <h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_06 · pestaña</span>
-            <div class="hld hld--tab">
-              <span class="tab">nota.md</span>
-              <h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_07 · error</span>
-            <div class="hld hld--error">
-              <div class="err-head"><span>⚠ dependencia muerta</span><span>×</span></div>
-              <div class="hld-body"><h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p></div>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_08 · punteado</span>
-            <div class="hld hld--dotted">
-              <span class="rec blink">rec</span>
-              <h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_09 · borde hex</span>
-            <div class="hld hld--hex">
-              <div class="hex-edge" data-hex></div>
-              <div class="hld-body"><h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p></div>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_10 · borde marquee</span>
-            <div class="hld hld--marquee">
-              <div class="marquee"><div class="marquee-track" data-marquee="nota de conservación — keep it beating"></div></div>
-              <div class="hld-body"><h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p></div>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_11 · glitch</span>
-            <div class="hld hld--glitch">
-              <h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p>
-            </div>
-          </div>
-
-          <div class="holdercell"><span class="h-label">h_12 · ticket</span>
-            <div class="hld hld--receipt">
-              <h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p>
-              <div class="perf">latido 58a6…91 · 48 bpm</div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- ░░ FORM HOLDERS — estilos de campo (sin caja negra) ░░ -->
-      <section class="lab">
-        <div class="lab-intro">
-          <h2>form holders</h2>
-          <p>
-            Estilos para los campos del formulario — sin la línea negra ni la caja cuadrada.
-            Decime cuál (f_01…f_10) usamos para "la obra / título / artista".
-          </p>
-        </div>
-        <div class="formgrid">
-          <div class="fldcell"><span class="h-label">f_01 · línea blanda</span><div class="fld fld--blank"><input placeholder="https://tu-obra…" /></div></div>
-          <div class="fldcell"><span class="h-label">f_02 · punteado</span><div class="fld fld--dotted"><input placeholder="https://tu-obra…" /></div></div>
-          <div class="fldcell"><span class="h-label">f_03 · terminal</span><div class="fld fld--term"><span class="p">&gt;</span><input placeholder="tu-obra…" /></div></div>
-          <div class="fldcell"><span class="h-label">f_04 · halo difuso</span><div class="fld fld--halo"><input placeholder="https://tu-obra…" /></div></div>
-          <div class="fldcell"><span class="h-label">f_05 · corchetes</span><div class="fld fld--bracket">[<input placeholder="tu-obra…" />]</div></div>
-          <div class="fldcell"><span class="h-label">f_06 · grano</span><div class="fld fld--grain"><input placeholder="https://tu-obra…" /></div></div>
-          <div class="fldcell"><span class="h-label">f_07 · label flotante</span><div class="fld fld--float"><span class="fl">la obra</span><input placeholder="https://tu-obra…" /></div></div>
-          <div class="fldcell"><span class="h-label">f_08 · marginalia</span><div class="fld fld--margin"><span class="fl">la obra…</span><input placeholder="https://tu-obra…" /></div></div>
-          <div class="fldcell"><span class="h-label">f_09 · borde difuso</span><div class="fld fld--blur"><input placeholder="https://tu-obra…" /></div></div>
-          <div class="fldcell"><span class="h-label">f_10 · mínimo</span><div class="fld fld--min"><input placeholder="https://tu-obra…" /></div></div>
-        </div>
-      </section>
-
-      <!-- ░░ SOFT TEXT HOLDERS — cajas blandas (blur + grano) ░░ -->
-      <section class="lab">
-        <div class="lab-intro">
-          <h2>soft text holders</h2>
-          <p>La versión menos "IA": cajas blandas, con grano, halos y bordes difusos. s_01…s_06.</p>
-        </div>
-        <div class="softgrid">
-          <div class="softcell"><span class="h-label">s_01 · glow</span><div class="sh sh--glow"><h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p></div></div>
-          <div class="softcell"><span class="h-label">s_02 · grano</span><div class="sh sh--grain"><h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p></div></div>
-          <div class="softcell"><span class="h-label">s_03 · borde difuso</span><div class="sh sh--feather"><h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p></div></div>
-          <div class="softcell"><span class="h-label">s_04 · marginalia</span><div class="sh sh--margin"><span class="note">nota al margen →</span><h4>nota de conservación</h4><p>una copia que sobrevive a la muerte de sus servidores.</p></div></div>
-          <div class="softcell"><span class="h-label">s_05 · marcador</span><div class="sh sh--mark"><h4>nota de conservación</h4><p>una copia que <span class="hl">sobrevive a la muerte</span> de sus servidores.</p></div></div>
-          <div class="softcell"><span class="h-label">s_06 · nube</span><div class="sh sh--cloud"><h4>nota de conservación</h4><p>esta obra corre sobre un motor que ya nadie mantiene. una copia que sobrevive a la muerte de sus servidores.</p></div></div>
-        </div>
       </section>
     </main>
 
     <footer class="colophon">
       <p>
-        <strong>revenant</strong> mantiene los art games vivos, autocontenidos y latiendo.
-        Lo que ves y tocás funciona de verdad. Lo que sigue siendo visión, no feature,
-        es el agente que juega la obra y re-performa lo que murió.
+        <strong>revenant</strong> keeps art games running as their engines and servers die,
+        and reads exactly what each one is built on. Everything on this page is an interface
+        preview with sample data. What runs for real today is capture, diagnosis and the
+        signature; rebuilding what died — the recollection — is the frontier this work funds.
       </p>
       <p class="muted">
-        Nostalgia reflexiva (Boym) · hauntología (Fisher) · un latido por obra.
+        reflective nostalgia (Boym) · hauntology (Fisher) · one signature per work.
       </p>
     </footer>
 
